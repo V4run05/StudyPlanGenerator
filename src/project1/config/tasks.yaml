@@ -1,0 +1,110 @@
+goal_analysis:
+  description: >
+    Analyze the user's input which includes their learning goal: '{learning_goal}'
+    and their current knowledge level: '{current_level}'.
+    Identify the core subject matter, the desired proficiency, and any implied sub-goals or constraints.
+  expected_output: >
+    A concise summary of the user's learning objective, target subject, desired outcome,
+    and assessed starting knowledge level (e.g., "User wants to learn Python for web development,
+    starting as a complete beginner, aiming for intermediate proficiency to build simple web apps.").
+    This summary will serve as the foundation for subsequent planning.
+  agent: goal_analyzer
+
+curriculum_planning:
+  description: >
+    Based on the analyzed learning goal and knowledge level from the 'Goal Analyzer',
+    create a detailed, structured learning plan.
+    The plan should list a sequence of topics or modules to be learned, ordered logically
+    from foundational to more advanced concepts.
+    Each topic should be a clear, actionable learning unit.
+    Break down major topics into sub-topics where appropriate.
+    Clearly identify 3-5 key foundational topics from this curriculum that would benefit most from practice problems.
+  expected_output: >
+    A structured curriculum plan presented as a list of topics/sub-topics in the correct learning order.
+    Also, a separate list of 3-5 identified key foundational topics for problem generation.
+
+    Example for curriculum:
+    "Learning Plan Outline:
+    Module 1: Topic A
+      - Sub-topic A1
+      - Sub-topic A2
+    Module 2: Topic B..."
+
+    Example for key topics:
+    "Key Foundational Topics for Practice:
+    - Sub-topic A1
+    - Topic B
+    - Sub-topic C2"
+  agent: curriculum_planner
+  context:
+    - goal_analysis
+
+resource_suggestion:
+  description: >
+    For each TOPIC in the curriculum plan, use your web search tool.
+    From the web search results for EACH TOPIC, review the titles and snippets and
+    select ONLY THE TOP 1 or 2 MOST RELEVANT links.
+    Your immediate output for this task should be ONLY these selected URLs.
+    Do NOT attempt to summarize, categorize, or provide detailed descriptions of the links in this step.
+  expected_output: >
+    A concise list mapping each curriculum topic to ONLY 1 or 2 selected URLs from the search results.
+    Example:
+    "Selected URLs for Processing:
+    Topic: Introduction to Python
+      - https://www.python.org/
+      - https://realpython.com/python-first-steps/
+    Topic: Basic Syntax
+      - https://www.w3schools.com/python/python_syntax.asp
+    ..."
+  agent: resource_suggester
+  context:
+    - curriculum_planning
+  async_execution: false
+
+problem_generation:
+  description: >
+    Using the curriculum outline and the identified list of 3-5 key foundational topics
+    from the 'Curriculum Planner', generate 1-2 practice problems for EACH of these key topics.
+    Each problem must be accompanied by a detailed, step-by-step solution and explanation.
+    The problems and solutions should be tailored to the user's learning level.
+  expected_output: >
+    A structured set of practice problems with solutions, organized by topic.
+    Example:
+    "Practice Problems:
+    Topic: Sub-topic A1
+      Problem 1: [Problem statement]
+      Solution 1:
+        Step 1: [Explanation]
+        Step 2: [Explanation]
+        Answer: [Final Answer]
+    Topic: Topic B
+      Problem 1: ...
+    ..."
+  agent: practice_problem_generator
+  context:
+    - curriculum_planning
+  async_execution: false
+
+final_plan_assembly:
+  description: >
+    Compile the final personalized learning plan. This involves integrating:
+    1. The structured curriculum outline (topics and sub-topics) from the 'Curriculum Planner'.
+    2. The curated list of web-based learning resources (with URLs) from the 'Resource Suggester'.
+    3. The generated practice problems (with step-by-step solutions) from the 'Practice Problem Generator'.
+    Format the entire plan clearly in Markdown. The plan should start with a brief overview
+    derived from the 'Goal Analyzer's' summary. Ensure distinct sections for "Curriculum Outline,"
+    "Learning Resources," and "Practice Problems." The tone should be encouraging and professional.
+
+    DON'T include comments like "This is the final plan" or "Here is the complete plan." or "I now can give a great answer"
+    Just provide the final plan in a structured format.
+
+  expected_output: >
+    A single, comprehensive Markdown document representing the final polished personalized learning plan.
+    It must include an introduction, the curriculum, resources per topic, and practice problems per key topic.
+  agent: learning_plan_consolidator
+  context:
+    - goal_analysis
+    - curriculum_planning
+    - resource_suggestion
+    - problem_generation
+  output_file: "personalized_learning_plan.md"
