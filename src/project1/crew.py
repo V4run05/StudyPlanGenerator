@@ -6,7 +6,7 @@ from typing import List
 from dotenv import load_dotenv
 import os
 
-from crewai_tools import SerperDevTool, ScrapeWebsiteTool
+from crewai_tools import SerperDevTool
 
 load_dotenv()
 
